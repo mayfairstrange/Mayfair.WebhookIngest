@@ -1,4 +1,7 @@
 using Mayfair.WebhookIngest.Api.Persistence;
+using Mayfair.WebhookIngest.Api.Webhooks;
+using Mayfair.WebhookIngest.Api.Webhooks.Abstractions;
+using Mayfair.WebhookIngest.Api.Webhooks.Stripe;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -11,6 +14,10 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddDbContext<AppDbContext>(options
     => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
+
+
+builder.Services.AddSingleton<IWebhookProviderVerifier, StripeWebhookVerifier>();
+builder.Services.AddSingleton<IWebhookSignatureVerifier, WebhookSignatureVerifier>();
 
 
 var app = builder.Build();
