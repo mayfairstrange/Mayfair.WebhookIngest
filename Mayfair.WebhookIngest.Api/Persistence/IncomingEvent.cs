@@ -7,6 +7,7 @@
         public string ProviderEventId { get; set; } = default!;
         public string EventType { get; set; } = default!;
         public DateTimeOffset ReceivedAt { get; set; }
+
         public string PayloadJson { get; set; } = default!;
         public string Status { get; set; } = "received";
         public int Attempts { get; set; }
