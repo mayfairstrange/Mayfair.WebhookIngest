@@ -4,6 +4,8 @@ using Mayfair.WebhookIngest.Api.Webhooks.Abstractions;
 using Mayfair.WebhookIngest.Api.Webhooks.Stripe;
 using Microsoft.EntityFrameworkCore;
 
+DotNetEnv.Env.Load();
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
