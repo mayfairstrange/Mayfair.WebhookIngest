@@ -5,4 +5,5 @@
   <Project Path="Mayfair.WebhookIngest.Infrastructure/Mayfair.WebhookIngest.Infrastructure.csproj" Id="7777ce7d-80ed-4beb-a132-1c80813d133a" />
   <Project Path="Mayfair.WebhookIngest.IntegrationTests/Mayfair.WebhookIngest.IntegrationTests.csproj" />
   <Project Path="Mayfair.WebhookIngest.UnitTests/Mayfair.WebhookIngest.UnitTests.csproj" />
+  <Project Path="Mayfair.WebhookIngest.Worker/Mayfair.WebhookIngest.Worker.csproj" />
 </Solution>

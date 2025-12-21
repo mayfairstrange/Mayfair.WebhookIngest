@@ -7,11 +7,17 @@
         public string ProviderEventId { get; set; } = default!;
         public string EventType { get; set; } = default!;
         public DateTimeOffset ReceivedAt { get; set; }
-
         public string PayloadJson { get; set; } = default!;
         public Status Status { get; set; } = Status.Received;
         public int Attempts { get; set; }
         public string? LastError { get; set; }
+
+        public DateTimeOffset? LastAttemptAt { get; set; }
+        public DateTimeOffset? NextAttemptAt { get; set; }
+        public DateTimeOffset? LockedUntil { get; set; }
+        public string? LockId { get; set; }
+        public DateTimeOffset? ProcessedAt { get; set; }
+
 
         private IncomingEvent() { }
 
@@ -32,6 +38,8 @@
                 ReceivedAt = DateTimeOffset.UtcNow,
                 PayloadJson = payloadJson,
                 Status = signatureValid ? Status.Received : Status.Failed,
+                NextAttemptAt = signatureValid ? DateTimeOffset.UtcNow : null,
+                ProcessedAt = signatureValid ? null : DateTimeOffset.UtcNow,
                 Attempts = 0,
                 LastError = signatureValid ? null : error
             };

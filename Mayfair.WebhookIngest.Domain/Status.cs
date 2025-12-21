@@ -2,10 +2,11 @@
 {
     public enum Status
     {
-        Received,
-        Processing,
-        Failed,
-        Processed,
-        Ignored
+        Received = 0,
+        Processing = 1,
+        Processed = 2,
+        Failed = 3,
+        DeadLettered = 4
     }
+
 }
