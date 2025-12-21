@@ -23,8 +23,8 @@
 
         public static IncomingEvent Create(
             string provider,
-            string providerEventId,
-            string eventType,
+            string? providerEventId,
+            string? eventType,
             string payloadJson,
             bool signatureValid,
             string? error)

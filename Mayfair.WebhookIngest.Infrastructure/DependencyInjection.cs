@@ -11,8 +11,12 @@ namespace Mayfair.WebhookIngest.Infrastructure
     {
         public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
         {
-            services.AddDbContext<AppDbContext>(options =>
-                options.UseNpgsql(configuration.GetConnectionString("Default")));
+            var cs = configuration.GetConnectionString("Default");
+            if (string.IsNullOrWhiteSpace(cs))
+                throw new InvalidOperationException("Missing connection string: ConnectionStrings:Default");
+
+            // PostgreSQL
+            services.AddDbContext<AppDbContext>(options => options.UseNpgsql(cs));
 
             services.AddScoped<IIncomingEventWriter, IncomingEventWriter>();
             services.AddScoped<IWebhookSignatureVerifier, WebhookSignatureVerifierAdapter>();
