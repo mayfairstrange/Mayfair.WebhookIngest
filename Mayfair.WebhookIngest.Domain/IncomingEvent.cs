@@ -4,8 +4,9 @@
     {
         public Guid Id { get; set; }
         public string Provider { get; set; } = default!;
-        public string ProviderEventId { get; set; } = default!;
-        public string EventType { get; set; } = default!;
+        public string? ProviderEventId { get; set; }
+        public string? EventType { get; set; }
+
         public DateTimeOffset ReceivedAt { get; set; }
         public string PayloadJson { get; set; } = default!;
         public Status Status { get; set; } = Status.Received;
@@ -33,8 +34,8 @@
             {
                 Id = Guid.NewGuid(),
                 Provider = provider,
-                ProviderEventId = string.IsNullOrWhiteSpace(providerEventId) ? "unknown" : providerEventId,
-                EventType = string.IsNullOrWhiteSpace(eventType) ? "unknown" : eventType,
+                ProviderEventId = string.IsNullOrWhiteSpace(providerEventId) ? null : providerEventId,
+                EventType = string.IsNullOrWhiteSpace(eventType) ? null : eventType,
                 ReceivedAt = DateTimeOffset.UtcNow,
                 PayloadJson = payloadJson,
                 Status = signatureValid ? Status.Received : Status.Failed,
