@@ -1,3 +1,6 @@
 <Solution>
   <Project Path="Mayfair.WebhookIngest.Api/Mayfair.WebhookIngest.Api.csproj" />
+  <Project Path="Mayfair.WebhookIngest.Application/Mayfair.WebhookIngest.Application.csproj" Id="8745431a-cdf8-4636-a9ec-d74928a737de" />
+  <Project Path="Mayfair.WebhookIngest.Domain/Mayfair.WebhookIngest.Domain.csproj" Id="2869ab15-cc09-4a94-87f0-c50b21c35f15" />
+  <Project Path="Mayfair.WebhookIngest.Infrastructure/Mayfair.WebhookIngest.Infrastructure.csproj" Id="7777ce7d-80ed-4beb-a132-1c80813d133a" />
 </Solution>

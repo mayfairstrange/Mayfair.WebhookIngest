@@ -1,8 +1,8 @@
 using Mayfair.WebhookIngest.Api.Persistence;
-using Mayfair.WebhookIngest.Api.Webhooks;
-using Mayfair.WebhookIngest.Api.Webhooks.Abstractions;
-using Mayfair.WebhookIngest.Api.Webhooks.Stripe;
+using Mayfair.WebhookIngest.Infrastructure;
+using Mayfair.WebhookIngest.Application;
 using Microsoft.EntityFrameworkCore;
+using FluentValidation;
 
 DotNetEnv.Env.Load();
 
@@ -14,12 +14,8 @@ builder.Services.AddControllers();
 // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
 builder.Services.AddOpenApi();
 
-builder.Services.AddDbContext<AppDbContext>(options
-    => options.UseNpgsql(builder.Configuration.GetConnectionString("Default")));
-
-
-builder.Services.AddSingleton<IWebhookProviderVerifier, StripeWebhookVerifier>();
-builder.Services.AddSingleton<IWebhookSignatureVerifier, WebhookSignatureVerifier>();
+builder.Services.AddApplication();
+builder.Services.AddInfrastructure(builder.Configuration);
 
 
 var app = builder.Build();
@@ -33,6 +29,28 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+
+app.UseExceptionHandler(handlerApp =>
+{
+    handlerApp.Run(async context =>
+    {
+        var feature = context.Features.Get<Microsoft.AspNetCore.Diagnostics.IExceptionHandlerFeature>();
+        if (feature?.Error is ValidationException validation)
+        {
+            context.Response.StatusCode = StatusCodes.Status400BadRequest;
+            await context.Response.WriteAsJsonAsync(new
+            {
+                error = "Validation failed",
+                details = validation.Errors.Select(e => new { field = e.PropertyName, message = e.ErrorMessage })
+            });
+            return;
+        }
+
+        context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+        await context.Response.WriteAsJsonAsync(new { error = "Server error" });
+    });
+});
 
 app.MapControllers();
 

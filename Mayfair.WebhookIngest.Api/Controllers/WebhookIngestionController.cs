@@ -1,12 +1,8 @@
-﻿using Mayfair.WebhookIngest.Api.Infrastructure.Data;
-using Mayfair.WebhookIngest.Api.Infrastructure.Http;
-using Mayfair.WebhookIngest.Api.Persistence;
-using Mayfair.WebhookIngest.Api.Webhooks.Abstractions;
+﻿using Mayfair.WebhookIngest.Application.Webhooks;
+using Mayfair.WebhookIngest.Infrastructure.Http;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Security.Cryptography;
-using System.Text;
-using System.Text.Json;
 
 namespace Mayfair.WebhookIngest.Api.Controllers;
 
@@ -14,13 +10,11 @@ namespace Mayfair.WebhookIngest.Api.Controllers;
 [Route("webhooks")]
 public sealed class WebhookIngestionController : ControllerBase
 {
-    private readonly AppDbContext _db;
-    private readonly IWebhookSignatureVerifier _verifier;
+    private readonly IMediator _mediator;
 
-    public WebhookIngestionController(AppDbContext db, IWebhookSignatureVerifier verifier)
+    public WebhookIngestionController(IMediator mediator)
     {
-        _db = db;
-        _verifier = verifier;
+        _mediator = mediator;
     }
 
     [HttpPost("{provider}")]
@@ -30,40 +24,18 @@ public sealed class WebhookIngestionController : ControllerBase
         if (string.IsNullOrWhiteSpace(payload))
             return BadRequest(new { error = "Empty body" });
 
-        var verify = await _verifier.VerifyAsync(provider, Request.Headers, payload, cancellationToken);
+        var headers = Request.Headers.ToDictionary(
+            h => h.Key,
+            h => h.Value.ToString(),
+            StringComparer.OrdinalIgnoreCase);
 
-        var incoming = new IncomingEvent
-        {
-            Id = Guid.NewGuid(),
-            Provider = provider,
-            ProviderEventId = verify.ProviderEventId ?? "unknown",
-            EventType = verify.EventType ?? "unknown",
-            ReceivedAt = DateTimeOffset.UtcNow,
-            PayloadJson = payload,
-            Status = verify.IsValid ? "received" : "invalid_signature",
-            Attempts = 0,
-            LastError = verify.IsValid ? null : verify.Error
-        };
+        var result = await _mediator.Send(
+            new IngestWebhookCommand(provider, headers, payload),
+            cancellationToken);
 
-        await InsertIgnoringDuplicatesAsync(incoming, cancellationToken);
-
-        if (!verify.IsValid)
+        if (result == IngestWebhookResult.InvalidSignature)
             return BadRequest(new { error = "Invalid signature" });
 
         return Ok();
-    }
-
-    private async Task InsertIgnoringDuplicatesAsync(IncomingEvent incoming, CancellationToken cancellationToken)
-    {
-        _db.IncomingEvents.Add(incoming);
-
-        try
-        {
-            await _db.SaveChangesAsync(cancellationToken);
-        }
-        catch (DbUpdateException ex) when (DbErrors.IsUniqueViolation(ex))
-        {
-            _db.ChangeTracker.Clear();0
-        }
     }
 }

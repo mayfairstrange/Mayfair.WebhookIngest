@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Mayfair.WebhookIngest.Api.Migrations
+namespace Mayfair.WebhookIngest.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class InitialCreate : Migration
@@ -21,7 +21,7 @@ namespace Mayfair.WebhookIngest.Api.Migrations
                     EventType = table.Column<string>(type: "character varying(200)", maxLength: 200, nullable: false),
                     ReceivedAt = table.Column<DateTimeOffset>(type: "timestamp with time zone", nullable: false),
                     PayloadJson = table.Column<string>(type: "text", nullable: false),
-                    Status = table.Column<string>(type: "text", nullable: false),
+                    Status = table.Column<int>(type: "integer", nullable: false),
                     Attempts = table.Column<int>(type: "integer", nullable: false),
                     LastError = table.Column<string>(type: "text", nullable: true)
                 },

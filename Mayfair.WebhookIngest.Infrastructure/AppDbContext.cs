@@ -1,6 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Mayfair.WebhookIngest.Api.Persistence;
+using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Text;
 
-namespace Mayfair.WebhookIngest.Api.Persistence
+namespace Mayfair.WebhookIngest.Infrastructure
 {
     public sealed class AppDbContext : DbContext
     {
@@ -20,6 +24,4 @@ namespace Mayfair.WebhookIngest.Api.Persistence
             });
         }
     }
-
-  
 }
