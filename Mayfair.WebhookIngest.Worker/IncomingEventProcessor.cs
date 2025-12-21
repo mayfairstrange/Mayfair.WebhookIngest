@@ -119,7 +119,8 @@ namespace Mayfair.WebhookIngest.Worker
             catch (Exception ex)
             {
                 ev.Attempts += 1;
-                ev.LastError = ex.Message;
+                ev.LastError = ex.ToString();
+                _logger.LogError(ex, "Failed processing IncomingEvent {Id}", id);
 
                 if (ev.Attempts >= 5)
                 {

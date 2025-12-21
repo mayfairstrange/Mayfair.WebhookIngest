@@ -55,8 +55,9 @@ dotnet run --project .\Mayfair.WebhookIngest.Api
 ## Useful .env 
 ```
 ASPNETCORE_ENVIRONMENT=Development
-ASPNETCORE_URLS="http://localhost:5000"
-Stripe__WebhookSecret=whsec_xxx
+ASPNETCORE_URLS="http://localhost:5000;https://localhost:5001"
+Webhooks__Stripe__SigningSecret=whsec_xxx
+Webhooks__Stripe__ToleranceSeconds=300
 ```
 
 ## EF Migrations

@@ -1,8 +1,10 @@
-using Mayfair.WebhookIngest.Api.Persistence;
-using Mayfair.WebhookIngest.Infrastructure;
-using Mayfair.WebhookIngest.Application;
-using Microsoft.EntityFrameworkCore;
 using FluentValidation;
+using Mayfair.WebhookIngest.Api.Persistence;
+using Mayfair.WebhookIngest.Application;
+using Mayfair.WebhookIngest.Infrastructure;
+using Mayfair.WebhookIngest.Infrastructure.Webhooks.Stripe;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 DotNetEnv.Env.Load();
 
@@ -17,6 +19,8 @@ builder.Services.AddOpenApi();
 builder.Services.AddApplication();
 builder.Services.AddInfrastructure(builder.Configuration);
 
+builder.Services.Configure<StripeWebhookOptions>(
+    builder.Configuration.GetSection("Webhooks:Stripe"));
 
 var app = builder.Build();
 
@@ -49,6 +53,19 @@ app.UseExceptionHandler(handlerApp =>
 
         context.Response.StatusCode = StatusCodes.Status500InternalServerError;
         await context.Response.WriteAsJsonAsync(new { error = "Server error" });
+    });
+});
+
+
+app.MapGet("/debug/config", (IOptions<StripeWebhookOptions> opt) =>
+{
+    var secret = opt.Value.SigningSecret;
+    return Results.Ok(new
+    {
+        hasSecret = !string.IsNullOrWhiteSpace(secret),
+        secretPrefix = string.IsNullOrWhiteSpace(secret) ? null : secret.Substring(0, Math.Min(8, secret.Length)),
+        toleranceSeconds = opt.Value.ToleranceSeconds,
+        env = app.Environment.EnvironmentName
     });
 });
 
